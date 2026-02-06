@@ -193,8 +193,8 @@ export default function Home() {
                           )}
                         </td>
                       ))}
-                      {Array.from({ length: gameState.currentRound - 1 - player.scores.length }, () => (
-                        <td key={`empty-${Math.random()}`} className="text-center py-3 px-2 text-sm text-gray-400">
+                      {Array.from({ length: gameState.currentRound - 1 - player.scores.length }, (_, emptyIdx) => (
+                        <td key={`empty-${idx}-${emptyIdx}`} className="text-center py-3 px-2 text-sm text-gray-400">
                           -
                         </td>
                       ))}
