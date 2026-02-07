@@ -87,39 +87,7 @@ export default function Home() {
       let newTotal = 0;
       
       for (const roundCards of newScores) {
-        // Skip BUST rounds
-        if (roundCards.length === 1 && roundCards[0] === 'BUST') {
-          continue;
-        }
-        
-        // Sum all number cards in this round
-        let roundSum = 0;
-        const modifiers: CardType[] = [];
-        
-        for (const card of roundCards) {
-          if (card === 'BUST') {
-            continue;
-          } else if (typeof card === 'number') {
-            roundSum += card;
-          } else {
-            // Save modifiers to apply later
-            modifiers.push(card);
-          }
-        }
-        
-        // Apply modifiers to this round's sum
-        for (const modifier of modifiers) {
-          if (modifier === 'x2') {
-            roundSum *= 2;
-          } else if (typeof modifier === 'string') {
-            // Handle +2, +4, +6, +8, +10
-            const addValue = parseInt(modifier.substring(1));
-            roundSum += addValue;
-          }
-        }
-        
-        // Add this round's total to cumulative total
-        newTotal += roundSum;
+        newTotal += calculateRoundScore(roundCards);
       }
 
       return {
@@ -227,6 +195,46 @@ export default function Home() {
     return card;
   };
 
+  // Calculate round score from cards
+  const calculateRoundScore = (cards: CardType[]): number => {
+    if (cards.length === 1 && cards[0] === 'BUST') {
+      return 0;
+    }
+
+    let roundSum = 0;
+    const modifiers: CardType[] = [];
+    let numberCardCount = 0;
+
+    // Separate number cards and modifiers
+    for (const card of cards) {
+      if (card === 'BUST') {
+        continue;
+      } else if (typeof card === 'number') {
+        roundSum += card;
+        numberCardCount++;
+      } else {
+        modifiers.push(card);
+      }
+    }
+
+    // Apply modifiers to this round's sum
+    for (const modifier of modifiers) {
+      if (modifier === 'x2') {
+        roundSum *= 2;
+      } else if (typeof modifier === 'string') {
+        const addValue = parseInt(modifier.substring(1));
+        roundSum += addValue;
+      }
+    }
+
+    // Add +15 bonus if exactly 7 number cards were selected
+    if (numberCardCount === 7) {
+      roundSum += 15;
+    }
+
+    return roundSum;
+  };
+
   if (!gameState.gameStarted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-400 to-cyan-500 flex items-center justify-center p-4">
@@ -294,17 +302,19 @@ export default function Home() {
                   {gameState.players.map((player, idx) => (
                     <tr key={idx} className="border-b border-gray-200">
                       <td className="py-3 px-2 font-medium text-gray-800">{player.name}</td>
-                      {player.scores.map((roundCards, scoreIdx) => (
-                        <td key={scoreIdx} className="text-center py-3 px-2 text-sm">
-                          <div className="flex flex-wrap gap-1 justify-center">
-                            {roundCards.map((card, cardIdx) => (
-                              <span key={cardIdx} className={`inline-block px-2 py-1 rounded font-semibold text-white text-xs ${getCardColor(card)}`}>
-                                {formatCardDisplay(card)}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                      ))}
+                      {player.scores.map((roundCards, scoreIdx) => {
+                        const roundScore = calculateRoundScore(roundCards);
+                        const isBust = roundCards.length === 1 && roundCards[0] === 'BUST';
+                        return (
+                          <td key={scoreIdx} className="text-center py-3 px-2 text-sm">
+                            {isBust ? (
+                              <span className="text-red-500 font-semibold">BUST</span>
+                            ) : (
+                              <span className="font-semibold text-gray-800">{roundScore}</span>
+                            )}
+                          </td>
+                        );
+                      })}
                       {Array.from({ length: gameState.currentRound - 1 - player.scores.length }, (_, emptyIdx) => (
                         <td key={`empty-${idx}-${emptyIdx}`} className="text-center py-3 px-2 text-sm text-gray-400">
                           -
@@ -341,6 +351,27 @@ export default function Home() {
                               {formatCardDisplay(card)}
                             </span>
                           ))}
+                        </div>
+                        {/* Round Total */}
+                        <div className="mt-2">
+                          {(() => {
+                            const cards = roundScores[player.name];
+                            const roundScore = calculateRoundScore(cards);
+                            const numberCardCount = cards.filter(c => typeof c === 'number').length;
+                            const has7CardBonus = numberCardCount === 7;
+                            
+                            return (
+                              <div className="bg-cyan-50 border-2 border-cyan-300 rounded-lg p-2">
+                                <span className="text-sm font-semibold text-gray-700">Round Total: </span>
+                                <span className="text-lg font-bold text-cyan-600">{roundScore}</span>
+                                {has7CardBonus && (
+                                  <span className="ml-2 text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded">
+                                    +15 Bonus! (7 cards)
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                     )}
