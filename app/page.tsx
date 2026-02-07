@@ -107,19 +107,19 @@ export default function Home() {
           }
         }
         
-        // Add round sum to total
-        newTotal += roundSum;
-        
-        // Apply modifiers last to the cumulative total
+        // Apply modifiers to this round's sum
         for (const modifier of modifiers) {
           if (modifier === 'x2') {
-            newTotal *= 2;
+            roundSum *= 2;
           } else if (typeof modifier === 'string') {
             // Handle +2, +4, +6, +8, +10
             const addValue = parseInt(modifier.substring(1));
-            newTotal += addValue;
+            roundSum += addValue;
           }
         }
+        
+        // Add this round's total to cumulative total
+        newTotal += roundSum;
       }
 
       return {
