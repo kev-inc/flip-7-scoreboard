@@ -22,6 +22,7 @@ const MODIFIER_CARDS: ('x2' | '+2' | '+4' | '+6' | '+8' | '+10')[] = ['x2', '+2'
 export default function Home() {
   const [playerNames, setPlayerNames] = useState('');
   const [roundScores, setRoundScores] = useState<{ [key: string]: CardType[] }>({});
+  const [winner, setWinner] = useState<string | null>(null);
   const [gameState, setGameState] = useState<GameState>(() => {
     // Initialize from localStorage if available
     if (typeof window !== 'undefined') {
@@ -97,6 +98,12 @@ export default function Home() {
       };
     });
 
+    // Check for winner (first player to reach 200 or more)
+    const winningPlayer = updatedPlayers.find(player => player.total >= 200);
+    if (winningPlayer) {
+      setWinner(winningPlayer.name);
+    }
+
     setGameState({
       ...gameState,
       players: updatedPlayers,
@@ -161,6 +168,15 @@ export default function Home() {
         });
       }
     } else {
+      // Check if adding a number card would exceed 7 number cards limit
+      if (typeof card === 'number') {
+        const currentNumberCardCount = currentCards.filter(c => typeof c === 'number').length;
+        if (currentNumberCardCount >= 7) {
+          // Don't allow more than 7 number cards
+          return;
+        }
+      }
+      
       // Add the card
       setRoundScores({
         ...roundScores,
@@ -380,19 +396,29 @@ export default function Home() {
                     <div className="mb-3">
                       <p className="text-sm font-semibold text-gray-600 mb-2">Number Cards:</p>
                       <div className="flex flex-wrap gap-2">
-                        {NUMBER_CARDS.map((num) => (
-                          <button
-                            key={num}
-                            onClick={() => handleCardSelect(player.name, num)}
-                            className={`w-12 h-12 rounded-lg font-bold text-white transition-all shadow ${
-                              isCardSelected(player.name, num)
-                                ? `${getCardColor(num)} ring-4 ring-yellow-400 scale-110` 
-                                : `${getCardColor(num)} hover:scale-105`
-                            }`}
-                          >
-                            {num}
-                          </button>
-                        ))}
+                        {NUMBER_CARDS.map((num) => {
+                          const currentCards = roundScores[player.name] || [];
+                          const numberCardCount = currentCards.filter(c => typeof c === 'number').length;
+                          const isSelected = isCardSelected(player.name, num);
+                          const isDisabled = !isSelected && numberCardCount >= 7;
+                          
+                          return (
+                            <button
+                              key={num}
+                              onClick={() => handleCardSelect(player.name, num)}
+                              disabled={isDisabled}
+                              className={`w-12 h-12 rounded-lg font-bold text-white transition-all shadow ${
+                                isSelected
+                                  ? `${getCardColor(num)} ring-4 ring-yellow-400 scale-110` 
+                                  : isDisabled
+                                  ? `${getCardColor(num)} opacity-40 cursor-not-allowed`
+                                  : `${getCardColor(num)} hover:scale-105`
+                              }`}
+                            >
+                              {num}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                     
@@ -448,6 +474,34 @@ export default function Home() {
             </button>
           </div>
         </div>
+
+        {/* Winner Modal */}
+        {winner && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border-4 border-yellow-400 animate-bounce">
+              <div className="text-center">
+                <h2 className="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 flip7-title">
+                  🎉 WINNER! 🎉
+                </h2>
+                <p className="text-3xl font-bold text-gray-800 mb-6">
+                  {winner}
+                </p>
+                <p className="text-xl text-gray-600 mb-6">
+                  Congratulations! You've reached 200 points!
+                </p>
+                <button
+                  onClick={() => {
+                    setWinner(null);
+                    resetGame();
+                  }}
+                  className="w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg"
+                >
+                  Start New Game
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
