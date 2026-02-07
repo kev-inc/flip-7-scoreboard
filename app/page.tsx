@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 
+type CardType = number | 'x2' | '+2' | '+4' | '+6' | '+8' | '+10' | 'BUST';
+
 interface Player {
   name: string;
-  scores: (number | 'BUST')[];
+  scores: CardType[];
   total: number;
 }
 
@@ -14,9 +16,12 @@ interface GameState {
   currentRound: number;
 }
 
+const NUMBER_CARDS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+const MODIFIER_CARDS: ('x2' | '+2' | '+4' | '+6' | '+8' | '+10')[] = ['x2', '+2', '+4', '+6', '+8', '+10'];
+
 export default function Home() {
   const [playerNames, setPlayerNames] = useState('');
-  const [roundScores, setRoundScores] = useState<{ [key: string]: string }>({});
+  const [roundScores, setRoundScores] = useState<{ [key: string]: CardType | null }>({});
   const [gameState, setGameState] = useState<GameState>(() => {
     // Initialize from localStorage if available
     if (typeof window !== 'undefined') {
@@ -65,22 +70,37 @@ export default function Home() {
 
   const submitRound = () => {
     const updatedPlayers = gameState.players.map(player => {
-      const scoreInput = roundScores[player.name] || '';
-      let score: number | 'BUST';
+      const card = roundScores[player.name];
       
-      if (scoreInput.toUpperCase() === 'BUST' || scoreInput === '') {
-        score = 'BUST';
-      } else {
-        score = parseInt(scoreInput, 10);
-        if (isNaN(score)) {
-          score = 'BUST';
-        }
+      if (!card || card === 'BUST') {
+        return {
+          ...player,
+          scores: [...player.scores, 'BUST' as CardType],
+          total: player.total,
+        };
       }
 
-      const newScores = [...player.scores, score];
-      const newTotal = newScores.reduce((sum: number, s) => {
-        return s === 'BUST' ? sum : sum + s;
-      }, 0);
+      const newScores = [...player.scores, card];
+      
+      // Calculate total considering modifiers
+      let newTotal = 0;
+      let baseScore = 0;
+      
+      for (const score of newScores) {
+        if (score === 'BUST') {
+          continue;
+        } else if (typeof score === 'number') {
+          baseScore += score;
+        } else if (score === 'x2') {
+          baseScore *= 2;
+        } else {
+          // Handle +2, +4, +6, +8, +10
+          const addValue = parseInt(score.substring(1));
+          baseScore += addValue;
+        }
+      }
+      
+      newTotal = baseScore;
 
       return {
         ...player,
@@ -117,18 +137,46 @@ export default function Home() {
     });
   };
 
+  const handleCardSelect = (playerName: string, card: CardType) => {
+    setRoundScores({
+      ...roundScores,
+      [playerName]: card,
+    });
+  };
+
+  const getCardColor = (card: CardType): string => {
+    if (card === 'BUST') return 'bg-red-500';
+    if (typeof card === 'string') {
+      // Modifiers get orange
+      return 'bg-orange-500';
+    }
+    // Number cards get various colors like the game
+    const colors = [
+      'bg-cyan-500', 'bg-yellow-400', 'bg-pink-500', 'bg-purple-500',
+      'bg-teal-500', 'bg-red-400', 'bg-blue-500', 'bg-green-500',
+      'bg-indigo-500', 'bg-orange-400', 'bg-lime-500', 'bg-rose-500', 'bg-violet-500'
+    ];
+    return colors[card % colors.length];
+  };
+
+  const formatCardDisplay = (card: CardType): string => {
+    if (card === 'BUST') return 'BUST';
+    if (typeof card === 'number') return card.toString();
+    return card;
+  };
+
   if (!gameState.gameStarted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-          <h1 className="text-4xl font-bold text-center mb-2 text-gray-800">
-            Flip 7
+      <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-400 to-cyan-500 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border-4 border-yellow-400">
+          <h1 className="text-5xl font-bold text-center mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 flip7-title">
+            FLIP 7
           </h1>
-          <p className="text-center text-gray-600 mb-8">Scoreboard</p>
+          <p className="text-center text-gray-700 mb-8 text-lg font-semibold">Scoreboard</p>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2">
                 Player Names (comma-separated)
               </label>
               <input
@@ -136,13 +184,13 @@ export default function Home() {
                 value={playerNames}
                 onChange={(e) => setPlayerNames(e.target.value)}
                 placeholder="Alice, Bob, Charlie"
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-gray-800"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-cyan-500 text-gray-800"
               />
             </div>
             
             <button
               onClick={startGame}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+              className="w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg"
             >
               Start Game
             </button>
@@ -153,14 +201,14 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-400 to-cyan-500 p-4">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6">
-            <h1 className="text-3xl font-bold text-white text-center">
-              Flip 7 Scoreboard
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-yellow-400">
+          <div className="bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 p-6">
+            <h1 className="text-4xl font-bold text-white text-center flip7-title">
+              FLIP 7 SCOREBOARD
             </h1>
-            <p className="text-center text-white text-opacity-90 mt-1">
+            <p className="text-center text-white text-lg font-semibold mt-1">
               Round {gameState.currentRound}
             </p>
           </div>
@@ -185,12 +233,10 @@ export default function Home() {
                     <tr key={idx} className="border-b border-gray-200">
                       <td className="py-3 px-2 font-medium text-gray-800">{player.name}</td>
                       {player.scores.map((score, scoreIdx) => (
-                        <td key={scoreIdx} className="text-center py-3 px-2 text-sm text-gray-700">
-                          {score === 'BUST' ? (
-                            <span className="text-red-500 font-semibold">BUST</span>
-                          ) : (
-                            score
-                          )}
+                        <td key={scoreIdx} className="text-center py-3 px-2 text-sm">
+                          <span className={`inline-block px-2 py-1 rounded font-semibold text-white ${getCardColor(score)}`}>
+                            {formatCardDisplay(score)}
+                          </span>
                         </td>
                       ))}
                       {Array.from({ length: gameState.currentRound - 1 - player.scores.length }, (_, emptyIdx) => (
@@ -198,7 +244,7 @@ export default function Home() {
                           -
                         </td>
                       ))}
-                      <td className="text-right py-3 px-2 font-bold text-blue-600 text-lg">
+                      <td className="text-right py-3 px-2 font-bold text-cyan-600 text-lg">
                         {player.total}
                       </td>
                     </tr>
@@ -208,29 +254,75 @@ export default function Home() {
             </div>
 
             {/* Round Input */}
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
+            <div className="bg-gradient-to-br from-cyan-50 to-purple-50 rounded-lg p-6 mb-6 border-2 border-cyan-300">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
                 Enter Round {gameState.currentRound} Scores
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-6">
                 {gameState.players.map((player) => (
-                  <div key={player.name} className="flex gap-2">
-                    <label className="flex-1 flex items-center font-medium text-gray-700">
+                  <div key={player.name} className="bg-white rounded-lg p-4 border-2 border-gray-200">
+                    <label className="block font-bold text-gray-800 mb-3 text-lg">
                       {player.name}
                     </label>
-                    <input
-                      type="text"
-                      value={roundScores[player.name] || ''}
-                      onChange={(e) => setRoundScores({
-                        ...roundScores,
-                        [player.name]: e.target.value,
-                      })}
-                      placeholder="Points"
-                      className="w-24 px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-gray-800 text-center"
-                    />
+                    
+                    {/* Selected Card Display */}
+                    {roundScores[player.name] && (
+                      <div className="mb-3">
+                        <span className="text-sm text-gray-600">Selected: </span>
+                        <span className={`inline-block px-3 py-1 rounded-lg font-bold text-white ${getCardColor(roundScores[player.name]!)}`}>
+                          {formatCardDisplay(roundScores[player.name]!)}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Number Cards */}
+                    <div className="mb-3">
+                      <p className="text-sm font-semibold text-gray-600 mb-2">Number Cards:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {NUMBER_CARDS.map((num) => (
+                          <button
+                            key={num}
+                            onClick={() => handleCardSelect(player.name, num)}
+                            className={`w-12 h-12 rounded-lg font-bold text-white transition-all shadow ${
+                              roundScores[player.name] === num 
+                                ? `${getCardColor(num)} ring-4 ring-yellow-400 scale-110` 
+                                : `${getCardColor(num)} hover:scale-105`
+                            }`}
+                          >
+                            {num}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Modifier Cards */}
+                    <div className="mb-3">
+                      <p className="text-sm font-semibold text-gray-600 mb-2">Modifier Cards:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {MODIFIER_CARDS.map((mod) => (
+                          <button
+                            key={mod}
+                            onClick={() => handleCardSelect(player.name, mod)}
+                            className={`px-3 py-2 rounded-lg font-bold text-white transition-all shadow ${
+                              roundScores[player.name] === mod 
+                                ? 'bg-orange-500 ring-4 ring-yellow-400 scale-110' 
+                                : 'bg-orange-500 hover:scale-105'
+                            }`}
+                          >
+                            {mod}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* BUST Button */}
                     <button
                       onClick={() => handleBust(player.name)}
-                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors"
+                      className={`w-full py-2 rounded-lg font-bold text-white transition-all shadow ${
+                        roundScores[player.name] === 'BUST'
+                          ? 'bg-red-600 ring-4 ring-yellow-400'
+                          : 'bg-red-500 hover:bg-red-600'
+                      }`}
                     >
                       BUST
                     </button>
@@ -240,7 +332,7 @@ export default function Home() {
               
               <button
                 onClick={submitRound}
-                className="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+                className="w-full mt-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg"
               >
                 Submit Round
               </button>
@@ -249,7 +341,7 @@ export default function Home() {
             {/* Reset Button */}
             <button
               onClick={resetGame}
-              className="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+              className="w-full bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg"
             >
               Reset Game
             </button>
