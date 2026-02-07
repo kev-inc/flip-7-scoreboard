@@ -6,7 +6,7 @@ type CardType = number | 'x2' | '+2' | '+4' | '+6' | '+8' | '+10' | 'BUST';
 
 interface Player {
   name: string;
-  scores: CardType[];
+  scores: CardType[][]; // Array of rounds, each round is an array of cards
   total: number;
 }
 
@@ -21,7 +21,7 @@ const MODIFIER_CARDS: ('x2' | '+2' | '+4' | '+6' | '+8' | '+10')[] = ['x2', '+2'
 
 export default function Home() {
   const [playerNames, setPlayerNames] = useState('');
-  const [roundScores, setRoundScores] = useState<{ [key: string]: CardType | null }>({});
+  const [roundScores, setRoundScores] = useState<{ [key: string]: CardType[] }>({});
   const [gameState, setGameState] = useState<GameState>(() => {
     // Initialize from localStorage if available
     if (typeof window !== 'undefined') {
@@ -70,37 +70,57 @@ export default function Home() {
 
   const submitRound = () => {
     const updatedPlayers = gameState.players.map(player => {
-      const card = roundScores[player.name];
+      const cards = roundScores[player.name] || [];
       
-      if (!card || card === 'BUST') {
+      // If no cards or only BUST, mark as BUST
+      if (cards.length === 0 || (cards.length === 1 && cards[0] === 'BUST')) {
         return {
           ...player,
-          scores: [...player.scores, 'BUST' as CardType],
+          scores: [...player.scores, ['BUST' as CardType]],
           total: player.total,
         };
       }
 
-      const newScores = [...player.scores, card];
+      const newScores = [...player.scores, cards];
       
-      // Calculate total considering modifiers
+      // Calculate total across all rounds
       let newTotal = 0;
-      let baseScore = 0;
       
-      for (const score of newScores) {
-        if (score === 'BUST') {
+      for (const roundCards of newScores) {
+        // Skip BUST rounds
+        if (roundCards.length === 1 && roundCards[0] === 'BUST') {
           continue;
-        } else if (typeof score === 'number') {
-          baseScore += score;
-        } else if (score === 'x2') {
-          baseScore *= 2;
-        } else {
-          // Handle +2, +4, +6, +8, +10
-          const addValue = parseInt(score.substring(1));
-          baseScore += addValue;
+        }
+        
+        // Sum all number cards in this round
+        let roundSum = 0;
+        const modifiers: CardType[] = [];
+        
+        for (const card of roundCards) {
+          if (card === 'BUST') {
+            continue;
+          } else if (typeof card === 'number') {
+            roundSum += card;
+          } else {
+            // Save modifiers to apply later
+            modifiers.push(card);
+          }
+        }
+        
+        // Add round sum to total
+        newTotal += roundSum;
+        
+        // Apply modifiers last to the cumulative total
+        for (const modifier of modifiers) {
+          if (modifier === 'x2') {
+            newTotal *= 2;
+          } else if (typeof modifier === 'string') {
+            // Handle +2, +4, +6, +8, +10
+            const addValue = parseInt(modifier.substring(1));
+            newTotal += addValue;
+          }
         }
       }
-      
-      newTotal = baseScore;
 
       return {
         ...player,
@@ -133,15 +153,57 @@ export default function Home() {
   const handleBust = (playerName: string) => {
     setRoundScores({
       ...roundScores,
-      [playerName]: 'BUST',
+      [playerName]: ['BUST'],
     });
   };
 
   const handleCardSelect = (playerName: string, card: CardType) => {
-    setRoundScores({
-      ...roundScores,
-      [playerName]: card,
-    });
+    const currentCards = roundScores[playerName] || [];
+    
+    // If BUST is already selected, replace with new card
+    if (currentCards.length === 1 && currentCards[0] === 'BUST') {
+      setRoundScores({
+        ...roundScores,
+        [playerName]: [card],
+      });
+      return;
+    }
+    
+    // If selecting BUST, replace all cards with BUST
+    if (card === 'BUST') {
+      setRoundScores({
+        ...roundScores,
+        [playerName]: ['BUST'],
+      });
+      return;
+    }
+    
+    // Check if card is already selected
+    const cardIndex = currentCards.findIndex(c => c === card);
+    if (cardIndex !== -1) {
+      // Deselect the card
+      const newCards = currentCards.filter((_, i) => i !== cardIndex);
+      if (newCards.length === 0) {
+        const { [playerName]: _, ...rest } = roundScores;
+        setRoundScores(rest);
+      } else {
+        setRoundScores({
+          ...roundScores,
+          [playerName]: newCards,
+        });
+      }
+    } else {
+      // Add the card
+      setRoundScores({
+        ...roundScores,
+        [playerName]: [...currentCards, card],
+      });
+    }
+  };
+
+  const isCardSelected = (playerName: string, card: CardType): boolean => {
+    const cards = roundScores[playerName] || [];
+    return cards.includes(card);
   };
 
   const getCardColor = (card: CardType): string => {
@@ -232,11 +294,15 @@ export default function Home() {
                   {gameState.players.map((player, idx) => (
                     <tr key={idx} className="border-b border-gray-200">
                       <td className="py-3 px-2 font-medium text-gray-800">{player.name}</td>
-                      {player.scores.map((score, scoreIdx) => (
+                      {player.scores.map((roundCards, scoreIdx) => (
                         <td key={scoreIdx} className="text-center py-3 px-2 text-sm">
-                          <span className={`inline-block px-2 py-1 rounded font-semibold text-white ${getCardColor(score)}`}>
-                            {formatCardDisplay(score)}
-                          </span>
+                          <div className="flex flex-wrap gap-1 justify-center">
+                            {roundCards.map((card, cardIdx) => (
+                              <span key={cardIdx} className={`inline-block px-2 py-1 rounded font-semibold text-white text-xs ${getCardColor(card)}`}>
+                                {formatCardDisplay(card)}
+                              </span>
+                            ))}
+                          </div>
                         </td>
                       ))}
                       {Array.from({ length: gameState.currentRound - 1 - player.scores.length }, (_, emptyIdx) => (
@@ -265,13 +331,17 @@ export default function Home() {
                       {player.name}
                     </label>
                     
-                    {/* Selected Card Display */}
-                    {roundScores[player.name] && (
+                    {/* Selected Cards Display */}
+                    {roundScores[player.name] && roundScores[player.name].length > 0 && (
                       <div className="mb-3">
                         <span className="text-sm text-gray-600">Selected: </span>
-                        <span className={`inline-block px-3 py-1 rounded-lg font-bold text-white ${getCardColor(roundScores[player.name]!)}`}>
-                          {formatCardDisplay(roundScores[player.name]!)}
-                        </span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {roundScores[player.name].map((card, idx) => (
+                            <span key={idx} className={`inline-block px-3 py-1 rounded-lg font-bold text-white ${getCardColor(card)}`}>
+                              {formatCardDisplay(card)}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     )}
                     
@@ -284,7 +354,7 @@ export default function Home() {
                             key={num}
                             onClick={() => handleCardSelect(player.name, num)}
                             className={`w-12 h-12 rounded-lg font-bold text-white transition-all shadow ${
-                              roundScores[player.name] === num 
+                              isCardSelected(player.name, num)
                                 ? `${getCardColor(num)} ring-4 ring-yellow-400 scale-110` 
                                 : `${getCardColor(num)} hover:scale-105`
                             }`}
@@ -304,7 +374,7 @@ export default function Home() {
                             key={mod}
                             onClick={() => handleCardSelect(player.name, mod)}
                             className={`px-3 py-2 rounded-lg font-bold text-white transition-all shadow ${
-                              roundScores[player.name] === mod 
+                              isCardSelected(player.name, mod)
                                 ? 'bg-orange-500 ring-4 ring-yellow-400 scale-110' 
                                 : 'bg-orange-500 hover:scale-105'
                             }`}
@@ -319,7 +389,7 @@ export default function Home() {
                     <button
                       onClick={() => handleBust(player.name)}
                       className={`w-full py-2 rounded-lg font-bold text-white transition-all shadow ${
-                        roundScores[player.name] === 'BUST'
+                        isCardSelected(player.name, 'BUST')
                           ? 'bg-red-600 ring-4 ring-yellow-400'
                           : 'bg-red-500 hover:bg-red-600'
                       }`}
