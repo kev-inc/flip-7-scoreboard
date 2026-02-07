@@ -121,8 +121,25 @@ export default function Home() {
       });
       setPlayerNames('');
       setRoundScores({});
+      setWinner(null);
       localStorage.removeItem('flip7-scoreboard');
     }
+  };
+
+  const restartGameWithSamePlayers = () => {
+    const playerNames = gameState.players.map(p => p.name);
+    setGameState({
+      gameStarted: true,
+      players: playerNames.map(name => ({ name, scores: [], total: 0 })),
+      currentRound: 1,
+    });
+    setRoundScores({});
+    setWinner(null);
+    localStorage.setItem('flip7-scoreboard', JSON.stringify({
+      gameStarted: true,
+      players: playerNames.map(name => ({ name, scores: [], total: 0 })),
+      currentRound: 1,
+    }));
   };
 
   const handleBust = (playerName: string) => {
@@ -358,39 +375,41 @@ export default function Home() {
                     </label>
                     
                     {/* Selected Cards Display */}
-                    {roundScores[player.name] && roundScores[player.name].length > 0 && (
-                      <div className="mb-3">
-                        <span className="text-sm text-gray-600">Selected: </span>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {roundScores[player.name].map((card, idx) => (
-                            <span key={idx} className={`inline-block px-3 py-1 rounded-lg font-bold text-white ${getCardColor(card)}`}>
-                              {formatCardDisplay(card)}
-                            </span>
-                          ))}
-                        </div>
-                        {/* Round Total */}
-                        <div className="mt-2">
-                          {(() => {
-                            const cards = roundScores[player.name];
-                            const roundScore = calculateRoundScore(cards);
-                            const numberCardCount = cards.filter(c => typeof c === 'number').length;
-                            const has7CardBonus = numberCardCount === 7;
-                            
-                            return (
-                              <div className="bg-cyan-50 border-2 border-cyan-300 rounded-lg p-2">
-                                <span className="text-sm font-semibold text-gray-700">Round Total: </span>
-                                <span className="text-lg font-bold text-cyan-600">{roundScore}</span>
-                                {has7CardBonus && (
-                                  <span className="ml-2 text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded">
-                                    +15 Bonus! (7 cards)
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          })()}
-                        </div>
-                      </div>
-                    )}
+                    <div className="mb-3 min-h-[120px]">
+                      {roundScores[player.name] && roundScores[player.name].length > 0 ? (
+                        <>
+                          <span className="text-sm text-gray-600">Selected: </span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {roundScores[player.name].map((card, idx) => (
+                              <span key={idx} className={`inline-block px-3 py-1 rounded-lg font-bold text-white ${getCardColor(card)}`}>
+                                {formatCardDisplay(card)}
+                              </span>
+                            ))}
+                          </div>
+                          {/* Round Total */}
+                          <div className="mt-2">
+                            {(() => {
+                              const cards = roundScores[player.name];
+                              const roundScore = calculateRoundScore(cards);
+                              const numberCardCount = cards.filter(c => typeof c === 'number').length;
+                              const has7CardBonus = numberCardCount === 7;
+                              
+                              return (
+                                <div className="bg-cyan-50 border-2 border-cyan-300 rounded-lg p-2">
+                                  <span className="text-sm font-semibold text-gray-700">Round Total: </span>
+                                  <span className="text-lg font-bold text-cyan-600">{roundScore}</span>
+                                  {has7CardBonus && (
+                                    <span className="ml-2 text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded">
+                                      +15 Bonus! (7 cards)
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </>
+                      ) : null}
+                    </div>
                     
                     {/* Number Cards */}
                     <div className="mb-3">
@@ -478,7 +497,7 @@ export default function Home() {
         {/* Winner Modal */}
         {winner && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border-4 border-yellow-400 animate-bounce">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border-4 border-yellow-400">
               <div className="text-center">
                 <h2 className="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 flip7-title">
                   🎉 WINNER! 🎉
@@ -490,10 +509,7 @@ export default function Home() {
                   Congratulations! You've reached 200 points!
                 </p>
                 <button
-                  onClick={() => {
-                    setWinner(null);
-                    resetGame();
-                  }}
+                  onClick={restartGameWithSamePlayers}
                   className="w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg"
                 >
                   Start New Game
