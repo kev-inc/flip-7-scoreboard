@@ -36,4 +36,18 @@ body {
 .flip7-title {
   font-family: 'Bangers', cursive;
   letter-spacing: 0.05em;
+  color: #FDD835;
+  text-shadow: 
+    -3px -3px 0 #1E3A8A,
+    3px -3px 0 #1E3A8A,
+    -3px 3px 0 #1E3A8A,
+    3px 3px 0 #1E3A8A,
+    -3px 0 0 #1E3A8A,
+    3px 0 0 #1E3A8A,
+    0 -3px 0 #1E3A8A,
+    0 3px 0 #1E3A8A,
+    -4px -4px 0 #FF6B35,
+    4px -4px 0 #FF6B35,
+    -4px 4px 0 #FF6B35,
+    4px 4px 0 #FF6B35;
 }
