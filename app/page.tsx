@@ -275,10 +275,10 @@ export default function Home() {
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border-4 border-yellow-400">
           <div className="flex justify-center mb-4">
             <Image 
-              src="/flip7-logo.svg" 
+              src="/logo.webp" 
               alt="FLIP 7" 
-              width={800} 
-              height={250}
+              width={600} 
+              height={200}
               priority
               className="w-full max-w-xs h-auto"
             />
@@ -318,10 +318,10 @@ export default function Home() {
           <div className="bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 p-6">
             <div className="flex justify-center mb-2">
               <Image 
-                src="/flip7-logo.svg" 
+                src="/logo.webp" 
                 alt="FLIP 7" 
-                width={800} 
-                height={250}
+                width={600} 
+                height={200}
                 className="w-full max-w-md h-auto"
               />
             </div>
