@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200">
+  <!-- Card fan background -->
+  <g transform="translate(50, 20)">
+    <rect x="0" y="0" width="80" height="120" fill="#7B9FCB" stroke="#2E3A8A" stroke-width="4" rx="5"/>
+    <rect x="40" y="0" width="80" height="120" fill="#FFD54F" stroke="#2E3A8A" stroke-width="4" rx="5"/>
+    <rect x="80" y="0" width="80" height="120" fill="#EF5350" stroke="#2E3A8A" stroke-width="4" rx="5"/>
+    <rect x="120" y="0" width="80" height="120" fill="#F5F5DC" stroke="#2E3A8A" stroke-width="4" rx="5"/>
+    <rect x="160" y="0" width="80" height="120" fill="#D4E157" stroke="#2E3A8A" stroke-width="4" rx="5"/>
+  </g>
+  
+  <!-- FLIP 7 text with retro styling -->
+  <text x="300" y="140" font-family="'Bangers', 'Impact', cursive" font-size="120" font-weight="bold" text-anchor="middle" letter-spacing="8">
+    <!-- Outer shadow (red/orange) -->
+    <tspan fill="#EF4444" stroke="#EF4444" stroke-width="3">FLIP 7</tspan>
+  </text>
+  <text x="297" y="137" font-family="'Bangers', 'Impact', cursive" font-size="120" font-weight="bold" text-anchor="middle" letter-spacing="8">
+    <!-- Blue outline -->
+    <tspan fill="none" stroke="#1E40AF" stroke-width="8">FLIP 7</tspan>
+  </text>
+  <text x="297" y="137" font-family="'Bangers', 'Impact', cursive" font-size="120" font-weight="bold" text-anchor="middle" letter-spacing="8">
+    <!-- Yellow fill -->
+    <tspan fill="#FFEB3B">FLIP 7</tspan>
+  </text>
+</svg>
