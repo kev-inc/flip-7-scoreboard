@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     siteName: "Flip 7 Scoreboard",
     images: [
       {
-        url: "/og-image.png",
+        url: "/logo.webp",
         width: 1200,
         height: 630,
         alt: "Flip 7 Scoreboard App",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Flip 7 Scoreboard - Digital Score Tracker",
     description: "Free mobile-optimized digital scoreboard for the Flip 7 board game. Perfect for game nights!",
-    images: ["/og-image.png"],
+    images: ["/logo.webp"],
   },
   robots: {
     index: true,
