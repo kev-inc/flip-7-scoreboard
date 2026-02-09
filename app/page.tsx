@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 type CardType = number | 'x2' | '+2' | '+4' | '+6' | '+8' | '+10' | 'BUST';
 
@@ -272,9 +273,16 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-400 to-cyan-500 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border-4 border-yellow-400">
-          <h1 className="text-5xl font-bold text-center mb-2 flip7-title">
-            FLIP 7
-          </h1>
+          <div className="flex justify-center mb-4">
+            <Image 
+              src="/flip7-logo.svg" 
+              alt="FLIP 7" 
+              width={300} 
+              height={100}
+              priority
+              className="w-auto h-20"
+            />
+          </div>
           <p className="text-center text-gray-700 mb-8 text-lg font-semibold">Scoreboard</p>
           
           <div className="space-y-4">
@@ -308,10 +316,16 @@ export default function Home() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-yellow-400">
           <div className="bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 p-6">
-            <h1 className="text-4xl font-bold text-center flip7-title">
-              FLIP 7 SCOREBOARD
-            </h1>
-            <p className="text-center text-white text-lg font-semibold mt-1">
+            <div className="flex justify-center mb-2">
+              <Image 
+                src="/flip7-logo.svg" 
+                alt="FLIP 7" 
+                width={350} 
+                height={100}
+                className="w-auto h-16"
+              />
+            </div>
+            <p className="text-center text-white text-lg font-semibold">
               Round {gameState.currentRound}
             </p>
           </div>
