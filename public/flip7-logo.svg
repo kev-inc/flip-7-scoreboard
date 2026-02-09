@@ -1,24 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200">
-  <!-- Card fan background -->
-  <g transform="translate(50, 20)">
-    <rect x="0" y="0" width="80" height="120" fill="#7B9FCB" stroke="#2E3A8A" stroke-width="4" rx="5"/>
-    <rect x="40" y="0" width="80" height="120" fill="#FFD54F" stroke="#2E3A8A" stroke-width="4" rx="5"/>
-    <rect x="80" y="0" width="80" height="120" fill="#EF5350" stroke="#2E3A8A" stroke-width="4" rx="5"/>
-    <rect x="120" y="0" width="80" height="120" fill="#F5F5DC" stroke="#2E3A8A" stroke-width="4" rx="5"/>
-    <rect x="160" y="0" width="80" height="120" fill="#D4E157" stroke="#2E3A8A" stroke-width="4" rx="5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 250" preserveAspectRatio="xMidYMid meet">
+  <!-- Background cards fan -->
+  <g transform="translate(50, 30)">
+    <!-- Card 1 - Light Blue -->
+    <path d="M 10 0 L 80 0 L 90 120 L 20 120 Z" fill="#90B8E8" stroke="#2E3A8A" stroke-width="5"/>
+    <!-- Card 2 - Yellow -->
+    <path d="M 40 0 L 110 0 L 120 120 L 50 120 Z" fill="#FFD54F" stroke="#2E3A8A" stroke-width="5"/>
+    <!-- Card 3 - Red -->
+    <path d="M 70 0 L 140 0 L 150 120 L 80 120 Z" fill="#EF5350" stroke="#2E3A8A" stroke-width="5"/>
+    <!-- Card 4 - Cream -->
+    <path d="M 100 0 L 170 0 L 180 120 L 110 120 Z" fill="#F5F5DC" stroke="#2E3A8A" stroke-width="5"/>
+    <!-- Card 5 - Lime -->
+    <path d="M 130 0 L 200 0 L 210 120 L 140 120 Z" fill="#D4E157" stroke="#2E3A8A" stroke-width="5"/>
   </g>
   
-  <!-- FLIP 7 text with retro styling -->
-  <text x="300" y="140" font-family="'Bangers', 'Impact', cursive" font-size="120" font-weight="bold" text-anchor="middle" letter-spacing="8">
-    <!-- Outer shadow (red/orange) -->
-    <tspan fill="#EF4444" stroke="#EF4444" stroke-width="3">FLIP 7</tspan>
-  </text>
-  <text x="297" y="137" font-family="'Bangers', 'Impact', cursive" font-size="120" font-weight="bold" text-anchor="middle" letter-spacing="8">
-    <!-- Blue outline -->
-    <tspan fill="none" stroke="#1E40AF" stroke-width="8">FLIP 7</tspan>
-  </text>
-  <text x="297" y="137" font-family="'Bangers', 'Impact', cursive" font-size="120" font-weight="bold" text-anchor="middle" letter-spacing="8">
-    <!-- Yellow fill -->
-    <tspan fill="#FFEB3B">FLIP 7</tspan>
-  </text>
+  <!-- FLIP 7 text with layered effects -->
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Bangers&amp;display=swap');
+      .flip7-text {
+        font-family: 'Bangers', 'Impact', sans-serif;
+        font-size: 140px;
+        font-weight: bold;
+        letter-spacing: 12px;
+      }
+    </style>
+  </defs>
+  
+  <!-- Bottom shadow layer (red/orange) -->
+  <text x="410" y="175" class="flip7-text" text-anchor="middle" fill="#EF4444" stroke="#EF4444" stroke-width="8">FLIP 7</text>
+  
+  <!-- Middle layer (blue outline) -->
+  <text x="405" y="170" class="flip7-text" text-anchor="middle" fill="none" stroke="#1E40AF" stroke-width="12">FLIP 7</text>
+  
+  <!-- Top layer (yellow fill) -->
+  <text x="405" y="170" class="flip7-text" text-anchor="middle" fill="#FFEB3B">FLIP 7</text>
+  
+  <!-- Inner detail lines for depth -->
+  <text x="405" y="170" class="flip7-text" text-anchor="middle" fill="none" stroke="#00BCD4" stroke-width="3" opacity="0.6">FLIP 7</text>
 </svg>
