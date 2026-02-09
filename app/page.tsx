@@ -322,7 +322,7 @@ export default function Home() {
                 alt="FLIP 7" 
                 width={600} 
                 height={200}
-                className="w-full max-w-md h-auto"
+                className="w-full max-w-sm h-auto"
               />
             </div>
             <p className="text-center text-white text-lg font-semibold">
