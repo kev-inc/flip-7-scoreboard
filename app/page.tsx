@@ -277,10 +277,10 @@ export default function Home() {
             <Image 
               src="/flip7-logo.svg" 
               alt="FLIP 7" 
-              width={300} 
-              height={100}
+              width={800} 
+              height={250}
               priority
-              className="w-auto h-20"
+              className="w-full max-w-xs h-auto"
             />
           </div>
           <p className="text-center text-gray-700 mb-8 text-lg font-semibold">Scoreboard</p>
@@ -320,9 +320,9 @@ export default function Home() {
               <Image 
                 src="/flip7-logo.svg" 
                 alt="FLIP 7" 
-                width={350} 
-                height={100}
-                className="w-auto h-16"
+                width={800} 
+                height={250}
+                className="w-full max-w-md h-auto"
               />
             </div>
             <p className="text-center text-white text-lg font-semibold">
