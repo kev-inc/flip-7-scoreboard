@@ -308,7 +308,7 @@ export default function Home() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-yellow-400">
           <div className="bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 p-6">
-            <h1 className="text-4xl font-bold text-white text-center flip7-title" style={{ textShadow: '-2px -2px 0 #1E3A8A, 2px -2px 0 #1E3A8A, -2px 2px 0 #1E3A8A, 2px 2px 0 #1E3A8A, -2px 0 0 #1E3A8A, 2px 0 0 #1E3A8A, 0 -2px 0 #1E3A8A, 0 2px 0 #1E3A8A, -3px -3px 0 #FF6B35, 3px -3px 0 #FF6B35, -3px 3px 0 #FF6B35, 3px 3px 0 #FF6B35', color: '#FDD835' }}>
+            <h1 className="text-4xl font-bold text-center flip7-title">
               FLIP 7 SCOREBOARD
             </h1>
             <p className="text-center text-white text-lg font-semibold mt-1">
@@ -499,7 +499,7 @@ export default function Home() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border-4 border-yellow-400">
               <div className="text-center">
-                <h2 className="text-4xl font-bold mb-4 flip7-title" style={{ textShadow: '-2px -2px 0 #1E3A8A, 2px -2px 0 #1E3A8A, -2px 2px 0 #1E3A8A, 2px 2px 0 #1E3A8A, -2px 0 0 #1E3A8A, 2px 0 0 #1E3A8A, 0 -2px 0 #1E3A8A, 0 2px 0 #1E3A8A, -3px -3px 0 #FF6B35, 3px -3px 0 #FF6B35, -3px 3px 0 #FF6B35, 3px 3px 0 #FF6B35', color: '#FDD835' }}>
+                <h2 className="text-4xl font-bold mb-4 flip7-title">
                   🎉 WINNER! 🎉
                 </h2>
                 <p className="text-3xl font-bold text-gray-800 mb-6">
