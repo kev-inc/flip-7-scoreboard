@@ -45,9 +45,10 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: "google-site-verification-code",
-  },
+  // Note: Add Google Search Console verification code here after claiming the site
+  // verification: {
+  //   google: "your-google-site-verification-code",
+  // },
 };
 
 export const viewport: Viewport = {
