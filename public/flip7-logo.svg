@@ -16,9 +16,8 @@
   <!-- FLIP 7 text with layered effects -->
   <defs>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Bangers&amp;display=swap');
       .flip7-text {
-        font-family: 'Bangers', 'Impact', sans-serif;
+        font-family: 'Impact', 'Arial Black', sans-serif;
         font-size: 140px;
         font-weight: bold;
         letter-spacing: 12px;
